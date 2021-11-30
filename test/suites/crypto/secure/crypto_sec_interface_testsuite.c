@@ -49,9 +49,7 @@ static void tfm_crypto_test_1031(struct test_result_t *ret);
 static void tfm_crypto_test_1032(struct test_result_t *ret);
 static void tfm_crypto_test_1033(struct test_result_t *ret);
 static void tfm_crypto_test_1034(struct test_result_t *ret);
-#ifdef CRYPTO_KEY_ID_ENCODES_OWNER
 static void tfm_crypto_test_1035(struct test_result_t *ret);
-#endif /* CRYPTO_KEY_ID_ENCODES_OWNER */
 #ifdef TFM_CRYPTO_TEST_ALG_CCM
 static void tfm_crypto_test_1036(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_ALG_CCM */
@@ -60,6 +58,20 @@ static void tfm_crypto_test_1038(struct test_result_t *ret);
 #ifdef TFM_CRYPTO_TEST_HKDF
 static void tfm_crypto_test_1039(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_HKDF */
+#ifdef TFM_CRYPTO_TEST_ECDH
+static void tfm_crypto_test_1040(struct test_result_t *ret);
+#endif /* TFM_CRYPTO_TEST_ECDH */
+#ifdef TFM_CRYPTO_TEST_ALG_OFB
+static void tfm_crypto_test_1041(struct test_result_t *ret);
+#endif /* TFM_CRYPTO_TEST_ALG_OFB */
+#ifdef TFM_CRYPTO_TEST_ALG_ECB
+static void tfm_crypto_test_1042(struct test_result_t *ret);
+#endif /* TFM_CRYPTO_TEST_ALG_ECB */
+#ifdef TFM_CRYPTO_TEST_ASYM_ENCRYPT
+static void tfm_crypto_test_1043(struct test_result_t *ret);
+static void tfm_crypto_test_1044(struct test_result_t *ret);
+static void tfm_crypto_test_1045(struct test_result_t *ret);
+#endif /* TFM_CRYPTO_TEST_ASYM_ENCRYPT */
 
 static struct test_t crypto_tests[] = {
     {&tfm_crypto_test_1001, "TFM_S_CRYPTO_TEST_1001",
@@ -122,10 +134,8 @@ static struct test_t crypto_tests[] = {
      "Secure key policy check permissions", {TEST_PASSED} },
     {&tfm_crypto_test_1034, "TFM_S_CRYPTO_TEST_1034",
      "Secure persistent key interface", {TEST_PASSED} },
-#ifdef CRYPTO_KEY_ID_ENCODES_OWNER
     {&tfm_crypto_test_1035, "TFM_S_CRYPTO_TEST_1035",
      "Key access control", {TEST_PASSED} },
-#endif /* CRYPTO_KEY_ID_ENCODES_OWNER */
 #ifdef TFM_CRYPTO_TEST_ALG_CCM
     {&tfm_crypto_test_1036, "TFM_S_CRYPTO_TEST_1036",
      "Secure AEAD interface with truncated auth tag (AES-128-CCM-8)",
@@ -139,6 +149,29 @@ static struct test_t crypto_tests[] = {
     {&tfm_crypto_test_1039, "TFM_S_CRYPTO_TEST_1039",
      "Secure HKDF key derivation", {TEST_PASSED} },
 #endif /* TFM_CRYPTO_TEST_HKDF */
+#ifdef TFM_CRYPTO_TEST_ECDH
+    {&tfm_crypto_test_1040, "TFM_S_CRYPTO_TEST_1040",
+     "Secure ECDH key agreement", {TEST_PASSED} },
+#endif /* TFM_CRYPTO_TEST_ECDH */
+#ifdef TFM_CRYPTO_TEST_ALG_OFB
+    {&tfm_crypto_test_1041, "TFM_S_CRYPTO_TEST_1041",
+     "Secure Symmetric encryption (AES-128-OFB) interface",
+    {TEST_PASSED} },
+#endif /* TFM_CRYPTO_TEST_ALG_OFB */
+#ifdef TFM_CRYPTO_TEST_ALG_ECB
+    {&tfm_crypto_test_1042, "TFM_S_CRYPTO_TEST_1042",
+     "Secure Symmetric encryption (AES-128-ECB) interface",
+    {TEST_PASSED} },
+#endif /* TFM_CRYPTO_TEST_ALG_ECB */
+#ifdef TFM_CRYPTO_TEST_ASYM_ENCRYPT
+    {&tfm_crypto_test_1043, "TFM_S_CRYPTO_TEST_1043)",
+     "Secure Asymmetric encryption interface (RSA_OAEP)", {TEST_PASSED} },
+    {&tfm_crypto_test_1044, "TFM_S_CRYPTO_TEST_1044",
+     "Secure Asymmetric encryption interface (RSA_PKCS1V15)", {TEST_PASSED} },
+    {&tfm_crypto_test_1045, "TFM_NS_CRYPTO_TEST_1045",
+     "Secure Sign and verify message interface (ECDSA-SECP256R1-SHA256)",
+     {TEST_PASSED} },
+#endif /* TFM_CRYPTO_TEST_ASYM_ENCRYPT */
 };
 
 void register_testsuite_s_crypto_interface(struct test_suite_t *p_test_suite)
@@ -287,7 +320,6 @@ static void tfm_crypto_test_1034(struct test_result_t *ret)
     psa_persistent_key_test(1, ret);
 }
 
-#ifdef CRYPTO_KEY_ID_ENCODES_OWNER
 /**
  * \brief Tests key access control based on partition ID
  *
@@ -315,7 +347,7 @@ static void tfm_crypto_test_1035(struct test_result_t *ret)
     status = tfm_secure_client_2_call_test(
                                       TFM_SECURE_CLIENT_2_ID_CRYPTO_ACCESS_CTRL,
                                       &key_handle, sizeof(key_handle));
-    if (status != PSA_ERROR_NOT_PERMITTED) {
+    if (status != PSA_ERROR_INVALID_HANDLE) {
         TEST_FAIL("Should not be able to destroy key from another partition");
         return;
     }
@@ -325,9 +357,7 @@ static void tfm_crypto_test_1035(struct test_result_t *ret)
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error destroying a key");
     }
-    return;
 }
-#endif /* CRYPTO_KEY_ID_ENCODES_OWNER */
 
 #ifdef TFM_CRYPTO_TEST_ALG_CCM
 static void tfm_crypto_test_1036(struct test_result_t *ret)
@@ -337,7 +367,7 @@ static void tfm_crypto_test_1036(struct test_result_t *ret)
 
     psa_aead_test(PSA_KEY_TYPE_AES, alg, ret);
 }
-#endif /* TFM_CRYPTO_TEST_ALG_GCM */
+#endif /* TFM_CRYPTO_TEST_ALG_CCM */
 
 static void tfm_crypto_test_1037(struct test_result_t *ret)
 {
@@ -355,3 +385,42 @@ static void tfm_crypto_test_1039(struct test_result_t *ret)
     psa_key_derivation_test(PSA_ALG_HKDF(PSA_ALG_SHA_256), ret);
 }
 #endif /* TFM_CRYPTO_TEST_HKDF */
+
+#ifdef TFM_CRYPTO_TEST_ECDH
+static void tfm_crypto_test_1040(struct test_result_t *ret)
+{
+    psa_key_agreement_test(PSA_ALG_ECDH, ret);
+}
+#endif /* TFM_CRYPTO_TEST_ECDH */
+
+#ifdef TFM_CRYPTO_TEST_ALG_OFB
+static void tfm_crypto_test_1041(struct test_result_t *ret)
+{
+    psa_cipher_test(PSA_KEY_TYPE_AES, PSA_ALG_OFB, ret);
+}
+#endif /* TFM_CRYPTO_TEST_ALG_OFB */
+
+#ifdef TFM_CRYPTO_TEST_ALG_ECB
+static void tfm_crypto_test_1042(struct test_result_t *ret)
+{
+    psa_cipher_test(PSA_KEY_TYPE_AES, PSA_ALG_ECB_NO_PADDING, ret);
+}
+#endif /* TFM_CRYPTO_TEST_ALG_ECB */
+
+#ifdef TFM_CRYPTO_TEST_ASYM_ENCRYPT
+static void tfm_crypto_test_1043(struct test_result_t *ret)
+{
+    psa_asymmetric_encryption_test(PSA_ALG_RSA_OAEP(PSA_ALG_SHA_256), ret);
+}
+
+static void tfm_crypto_test_1044(struct test_result_t *ret)
+{
+    psa_asymmetric_encryption_test(PSA_ALG_RSA_PKCS1V15_CRYPT, ret);
+}
+
+static void tfm_crypto_test_1045(struct test_result_t *ret)
+{
+    psa_sign_verify_message_test(
+        PSA_ALG_DETERMINISTIC_ECDSA(PSA_ALG_SHA_256), ret);
+}
+#endif /* TFM_CRYPTO_TEST_ASYM_ENCRYPT */
