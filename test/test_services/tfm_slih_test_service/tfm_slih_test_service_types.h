@@ -8,6 +8,8 @@
 #ifndef __TFM_SLIH_TEST_SERVICE_TYPES_H__
 #define __TFM_SLIH_TEST_SERVICE_TYPES_H__
 
-#define TFM_SLIH_TEST_CASE_1        (0)
+#define TFM_SLIH_TEST_CASE_INVALID  (0)
+#define TFM_SLIH_TEST_CASE_1        (1)
+#define TFM_SLIH_TEST_CASE_2        (2)
 
 #endif /* __TFM_SLIH_TEST_SERVICE_TYPES_H__ */

@@ -11,11 +11,17 @@
 #include "tfm_plat_test.h"
 #include "tfm_sp_log.h"
 
+/* The execution flow ensures there are no race conditions for test_type */
+static int32_t test_type = TFM_SLIH_TEST_CASE_INVALID;
+static uint32_t *test_case_2_signal_wait;
+
 static void timer0_handler(void)
 {
+    tfm_plat_test_secure_timer_clear_intr();
+    psa_eoi(TFM_TIMER0_IRQ_SIGNAL);
+
     tfm_plat_test_secure_timer_stop();
     psa_irq_disable(TFM_TIMER0_IRQ_SIGNAL);
-    psa_eoi(TFM_TIMER0_IRQ_SIGNAL);
 }
 
 static void slih_test_case_1(psa_msg_t *msg) {
@@ -29,6 +35,28 @@ static void slih_test_case_1(psa_msg_t *msg) {
     timer0_handler();
 
     psa_reply(msg->handle, PSA_SUCCESS);
+}
+
+static void slih_test_case_2(psa_msg_t *msg) {
+    if (msg->in_size[0] != sizeof(test_case_2_signal_wait)) {
+        psa_reply(msg->handle, PSA_ERROR_INVALID_ARGUMENT);
+    }
+
+    psa_read(msg->handle, 0, &test_case_2_signal_wait,
+             sizeof(test_case_2_signal_wait));
+
+    psa_irq_enable(TFM_TIMER0_IRQ_SIGNAL);
+
+    tfm_plat_test_secure_timer_start();
+
+    psa_reply(msg->handle, PSA_SUCCESS);
+
+    if (psa_wait(TFM_TIMER0_IRQ_SIGNAL, PSA_BLOCK) != TFM_TIMER0_IRQ_SIGNAL) {
+            psa_panic();
+    }
+    timer0_handler();
+
+    *test_case_2_signal_wait = 1;
 }
 
 static void slih_test_get_msg(psa_signal_t signal, psa_msg_t *msg) {
@@ -49,9 +77,13 @@ void tfm_slih_test_service_entry(void)
         signals = psa_wait(PSA_WAIT_ANY, PSA_BLOCK);
         if (signals & TFM_SLIH_TEST_CASE_SIGNAL) {
             slih_test_get_msg(TFM_SLIH_TEST_CASE_SIGNAL, &msg);
-            switch (msg.type) {
+            test_type = msg.type;
+            switch (test_type) {
             case TFM_SLIH_TEST_CASE_1:
                 slih_test_case_1(&msg);
+                break;
+            case TFM_SLIH_TEST_CASE_2:
+                slih_test_case_2(&msg);
                 break;
             default:
                 LOG_ERRFMT("SLIH test service: Invalid message type: 0x%x\r\n",

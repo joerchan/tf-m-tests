@@ -40,6 +40,39 @@ static void tfm_irq_test_slih_case_1(struct test_result_t *ret) {
 
     ret->val = TEST_PASSED;
 }
+
+/*
+ * Test process:
+ *    - NSPE starts testing
+ *    - Test Partition starts timer
+ *    - Test Partition returns to NSPE
+ *    - Test Partition waits for the timer signal
+ *    - Test Partition receives the signal and stop timer
+ *    - Test Partition notifies NSPE
+ *    - Test finishes
+ */
+static void tfm_irq_test_slih_case_2(struct test_result_t *ret) {
+    psa_status_t status;
+    psa_invec in_vec;
+    volatile uint32_t signal_wait = 0;
+    volatile uint32_t *p_signal_wait = &signal_wait;
+
+    in_vec.base = (const void *)&p_signal_wait;
+    in_vec.len = sizeof(&signal_wait);
+
+    status = psa_call(TFM_SLIH_TEST_CASE_HANDLE,
+                      TFM_SLIH_TEST_CASE_2, &in_vec, 1, NULL, 0);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("TFM_NS_IRQ_TEST_SLIH_HANDLING FAILED\r\n");
+        return;
+    }
+
+    /* Wait for Test Partition to receive timer signal */
+    while(!signal_wait)
+        ;
+
+    ret->val = TEST_PASSED;
+}
 #endif /* TEST_NS_SLIH_IRQ */
 
 #ifdef TEST_NS_FLIH_IRQ
@@ -95,6 +128,8 @@ static struct test_t irq_test_cases[] = {
 #ifdef TEST_NS_SLIH_IRQ
     {&tfm_irq_test_slih_case_1, "TFM_NS_IRQ_TEST_SLIH_1001",
      "SLIH HANDLING Case 1", {TEST_PASSED}},
+    {&tfm_irq_test_slih_case_2, "TFM_NS_IRQ_TEST_SLIH_1002",
+     "SLIH HANDLING Case 2", {TEST_PASSED}},
 #endif /* TEST_NS_SLIH_IRQ */
 #ifdef TEST_NS_FLIH_IRQ
     {&tfm_irq_test_flih_case_1, "TFM_NS_IRQ_TEST_FLIH_1101",
