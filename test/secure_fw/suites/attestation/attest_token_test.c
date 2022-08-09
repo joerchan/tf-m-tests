@@ -88,7 +88,6 @@ int token_main_alt(uint32_t option_flags,
     return 0;
 }
 
-#ifdef INCLUDE_TEST_CODE /* Remove them from release build */
 static const uint8_t expected_minimal_token_bytes[] = {MINIMAL_TOKEN};
 /*
  * Public function. See token_test.h
@@ -193,8 +192,6 @@ int_fast16_t buffer_too_small_test()
 
     return return_value;
 }
-#endif /* INCLUDE_TEST_CODE */
-
 
 /**
  * \brief Check the simple IAT claims against compiled-in known values

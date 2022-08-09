@@ -18,23 +18,19 @@ static const uint8_t challenge_buffer[TEST_CHALLENGE_OBJ_SIZE] = {
 
 /* Define test suite for attestation service tests */
 /* List of tests */
-#ifdef INCLUDE_TEST_CODE /* Remove them from release build */
 static void tfm_attest_test_1001(struct test_result_t *ret);
 static void tfm_attest_test_1002(struct test_result_t *ret);
 static void tfm_attest_test_1003(struct test_result_t *ret);
-#endif
 static void tfm_attest_test_1004(struct test_result_t *ret);
 static void tfm_attest_test_1005(struct test_result_t *ret);
 
 static struct test_t attestation_interface_tests[] = {
-#ifdef INCLUDE_TEST_CODE /* Remove them from release build */
     {&tfm_attest_test_1001, "TFM_NS_ATTEST_TEST_1001",
      "Minimal token test of attest token"},
     {&tfm_attest_test_1002, "TFM_NS_ATTEST_TEST_1002",
      "Minimal token size test of attest token"},
     {&tfm_attest_test_1003, "TFM_NS_ATTEST_TEST_1003",
      "Short circuit signature test of attest token"},
-#endif
     {&tfm_attest_test_1004, "TFM_NS_ATTEST_TEST_1004",
      "ECDSA signature test of attest token"},
     {&tfm_attest_test_1005, "TFM_NS_ATTEST_TEST_1005",
@@ -54,7 +50,6 @@ register_testsuite_ns_attestation_interface(struct test_suite_t *p_test_suite)
                   attestation_interface_tests, list_size, p_test_suite);
 }
 
-#ifdef INCLUDE_TEST_CODE /* Remove them from release build */
 /*!
  * \brief Get minimal token, only include a hard coded challenge, but omit the
  *        rest of the claims
@@ -115,7 +110,6 @@ static void tfm_attest_test_1003(struct test_result_t *ret)
 
     ret->val = TEST_PASSED;
 }
-#endif /* INCLUDE_TEST_CODE */
 
 /*!
  * \brief Get an IAT with proper ECDSA signature. Parse the token, validate
